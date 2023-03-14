@@ -25,18 +25,13 @@ const main = async () => {
   const app = express();
 
   app.set("trust proxy", 1);
-  app.set(
-    "Access-Control-Allow-Origin",
-    "https://sandbox.embed.apollographql.com"
-  );
-  app.set("Access-Control-Allow-Credentials", true);
-
-  const httpServer = http.createServer(app);
-  const port = 3000;
   const corsOptions = {
     origin: "https://sandbox.embed.apollographql.com",
     credentials: true,
   };
+
+  const httpServer = http.createServer(app);
+  const port = 3000;
 
   const redisClient = createClient();
   redisClient.connect().catch(console.error);
@@ -50,7 +45,6 @@ const main = async () => {
     }),
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
-
   await apolloServer.start();
 
   app.use(
@@ -70,7 +64,7 @@ const main = async () => {
     cors(corsOptions),
     json(),
     expressMiddleware(apolloServer, {
-      context: async ({ req }) => ({ req: req.session }),
+      context: async ({ req, res }) => ({ req: req.session, res }),
     })
   );
 
